@@ -22,21 +22,21 @@ export default function Home() {
 
   useEffect(() => {
     try {
-        const numberOfSpace = input.match(/ /g);
-        if (numberOfSpace?.length! < 6) {
-          const now = new Date();
-          const cron = awsCronParser.parse(input);
-          const schedule = awsCronParser.getScheduleDescription(cron);
-          setResult(schedule);
-          const occurrence = awsCronParser.next(cron, now)
-          setNext(occurrence?.toUTCString()!);
-        } else {
-          setResult('');
-        }
-        } catch {
-          setResult('');
-          return;
-        }
+      const numberOfSpace = input.match(/ /g);
+      if (numberOfSpace?.length! < 6) {
+        const now = new Date();
+        const cron = awsCronParser.parse(input);
+        const schedule = awsCronParser.getScheduleDescription(cron);
+        setResult(schedule);
+        const occurrence = awsCronParser.next(cron, now)
+        setNext(occurrence?.toUTCString()!);
+      } else {
+        setResult('');
+      }
+    } catch {
+      setResult('');
+      return;
+    }
   }, [input]);
 
   return (
