@@ -1,40 +1,43 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import awsCronParser from "aws-cron-parser";
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 export declare type ParsedRule = (string | number)[];
 
 type FormData = {
-  cron: string
+  expression: string
 }
 
 export default function Home() {
-  const cronRef = useRef<HTMLInputElement>(null);
-  const [form, setFormData] = useState<FormData>({
-    cron: ''
-  });
+  const {
+    register,
+    watch
+  } = useForm<FormData>();
 
   const [result, setResult] = useState('');
+  const [next, setNext] = useState('');
+  const input = watch('expression')
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData({...form, [name]: value })
+  useEffect(() => {
     try {
-      const input = cronRef.current?.value!
-      const numberOfSpace = input.match(/ /g);
-      if (numberOfSpace?.length! < 6) {
-        const cron = awsCronParser.parse(input);
-        const schedule = awsCronParser.getScheduleDescription(cron);
-        setResult(schedule);
-      } else {
-        setResult('');
-      }
-    } catch {
-      setResult('');
-      return;
-    }
-  }
+        const numberOfSpace = input.match(/ /g);
+        if (numberOfSpace?.length! < 6) {
+          const now = new Date();
+          const cron = awsCronParser.parse(input);
+          const schedule = awsCronParser.getScheduleDescription(cron);
+          setResult(schedule);
+          const occurrence = awsCronParser.next(cron, now)
+          setNext(occurrence?.toUTCString()!);
+        } else {
+          setResult('');
+        }
+        } catch {
+          setResult('');
+          return;
+        }
+  }, [input]);
 
   return (
     <div className={styles.container}>
@@ -46,9 +49,10 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.main_title}>AWS Cron Checker</h1>
-        <h2 className={styles.result}>{ result }</h2>
+        {result && <h2 className={styles.result}>{ result }</h2>}
+        {result && next && <h3>next: { next }</h3>}
         <div>
-          <input className={styles.input_field} name='cron' onChange={handleChange} value={form.cron} ref={cronRef} placeholder="0 9 ? * 5 *"/>
+          <input className={styles.input_field} {...register('expression')} placeholder="0 9 ? * 5 *"/>
         </div>
         <table className={styles.rule_table}>
           <thead>
