@@ -16,6 +16,7 @@ export default function Home() {
   });
 
   const [result, setResult] = useState('');
+  const [next, setNext] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -24,9 +25,12 @@ export default function Home() {
       const input = cronRef.current?.value!
       const numberOfSpace = input.match(/ /g);
       if (numberOfSpace?.length! < 6) {
+        const now = new Date();
         const cron = awsCronParser.parse(input);
         const schedule = awsCronParser.getScheduleDescription(cron);
         setResult(schedule);
+        const occurrence = awsCronParser.next(cron, now)
+        setNext(occurrence?.toUTCString()!);
       } else {
         setResult('');
       }
@@ -46,7 +50,8 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.main_title}>AWS Cron Checker</h1>
-        <h2 className={styles.result}>{ result }</h2>
+        {result && <h2 className={styles.result}>{ result }</h2>}
+        {result && next && <h3>next: { next }</h3>}
         <div>
           <input className={styles.input_field} name='cron' onChange={handleChange} value={form.cron} ref={cronRef} placeholder="0 9 ? * 5 *"/>
         </div>
