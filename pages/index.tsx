@@ -23,13 +23,13 @@ export default function Home() {
   useEffect(() => {
     try {
       const numberOfSpace = input.match(/ /g);
-      if (numberOfSpace?.length! < 6) {
-        const now = new Date();
+      if (numberOfSpace?.length! === 5) {
         const cron = awsCronParser.parse(input);
-        const schedule = awsCronParser.getScheduleDescription(cron);
-        setResult(schedule);
-        const occurrence = awsCronParser.next(cron, now)
-        setNext(occurrence?.toUTCString()!);
+        const occurrence = awsCronParser.next(cron, new Date())!
+        const afterNext = awsCronParser.next(cron, occurrence)!
+
+        setResult(occurrence.toUTCString());
+        setNext(afterNext.toUTCString()!);
       } else {
         setResult('');
       }
@@ -49,7 +49,9 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.main_title}>AWS Cron Checker</h1>
+        {result && <h2>Next execution time</h2>}
         {result && <h2 className={styles.result}>{ result }</h2>}
+        {result && next && <h3>After next</h3>}
         {result && next && <h3>next: { next }</h3>}
         <div>
           <input className={styles.input_field} {...register('expression')} placeholder="0 9 ? * 5 *"/>
