@@ -4,8 +4,6 @@ import awsCronParser from "aws-cron-parser";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-export declare type ParsedRule = (string | number)[];
-
 type FormData = {
   expression: string
 }
