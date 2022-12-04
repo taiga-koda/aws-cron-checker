@@ -33,7 +33,6 @@ export default function Home() {
       }
     } catch {
       setResult('');
-      return;
     }
   }, [input]);
 
